@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#65152e">
+<meta name="description" content="Humsafar Sathi - Apna Humsafar Dhundho">
+<title>Humsafar Sathi | आपका अपना हमसफ़र</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--maroon:#741b38;--dark:#421020;--gold:#c49a54;--cream:#fffaf2}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:var(--cream);color:#38262b}
+header{background:linear-gradient(135deg,#421020,#8b2948);color:#fff;text-align:center;padding:38px 18px 32px}
+.logo{font-size:34px;font-weight:800}.logo span{color:#e9c783}.tagline{color:#f7e5d0;margin-top:8px;font-size:15px}
+.hero{text-align:center;padding:32px 18px;background:linear-gradient(180deg,#f8e8e6,#fffaf2)}
+.hero h1{color:var(--maroon);font-size:27px;margin:0 0 10px}.hero p{color:#75545c;line-height:1.8;max-width:550px;margin:auto}
+.container{width:100%;max-width:680px;margin:auto;padding:18px}
+.card{background:#fff;border:1px solid #f0dfd9;border-radius:20px;padding:23px;box-shadow:0 8px 28px rgba(80,20,40,.07);margin-bottom:20px}
+.section-title{color:var(--maroon);font-size:19px;font-weight:800;border-bottom:1px solid #f1e1dc;padding-bottom:12px;margin:0 0 17px}
+label{display:block;font-size:14px;font-weight:650;margin:15px 0 6px;color:#583b43}
+input,select,textarea{width:100%;padding:14px;border:1px solid #e7d7d6;border-radius:11px;background:#fffdfb;font-size:15px;color:#38262b;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(196,154,84,.12)}
+input[type=checkbox]{width:19px;height:19px;accent-color:#741b38}
+textarea{min-height:90px;resize:vertical}.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 13px}
+.notice{background:#fff7e8;border-left:4px solid var(--gold);padding:13px;border-radius:9px;font-size:13px;line-height:1.7;color:#71552e;margin:15px 0}
+.small-help{color:#80656b;font-size:12px;line-height:1.6;margin-top:5px}
+.multi-box{border:1px solid #e7d7d6;border-radius:12px;background:#fffdfb;margin-top:8px;overflow:hidden}
+.multi-box summary{padding:14px;cursor:pointer;color:#583b43;font-size:14px;font-weight:650}
+.multi-options{padding:5px 14px 14px;border-top:1px solid #f1e1dc;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.multi-options label{display:flex;align-items:flex-start;gap:9px;margin:5px 0;font-weight:450;line-height:1.5;cursor:pointer}
+.multi-options input{flex-shrink:0;margin:1px 0 0}
+.custom-option{margin-top:10px}.custom-option[hidden]{display:none}
+button{width:100%;padding:16px;border:0;border-radius:12px;background:linear-gradient(120deg,#68152f,#a43b59);color:white;font-size:16px;font-weight:750;cursor:pointer;margin-top:18px}
+button:disabled{opacity:.6;cursor:not-allowed}.secondary{background:#76515d}.hidden{display:none!important}
+#msg,#authMsg{text-align:center;padding:12px;font-weight:650;line-height:1.6;overflow-wrap:anywhere}
+footer{background:#421020;color:#f6e5df;text-align:center;padding:25px 15px;font-size:13px;line-height:1.9}footer strong{color:#e9c783}
+@media(max-width:480px){.grid,.multi-options{grid-template-columns:1fr}.logo{font-size:29px}.card{padding:17px}.hero h1{font-size:23px}}
+
+.bio-sheet{background:#fff;color:#30242a;border:1px solid #e8d8dc;border-radius:12px;padding:26px;margin-top:18px;min-height:320px;font-family:system-ui,"Noto Sans Devanagari",Mangal,sans-serif}
+.bio-sheet h2{text-align:center;color:#741b38;margin:0 0 6px}.bio-sheet .bio-sub{text-align:center;color:#80656b;margin:0 0 18px}.bio-sheet .bio-photo{display:block;max-width:125px;max-height:145px;object-fit:cover;margin:10px auto;border-radius:8px}.bio-sheet .bio-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.bio-sheet .bio-field{border-bottom:1px solid #eee;padding:7px 2px;overflow-wrap:anywhere}.bio-sheet .bio-field b{display:block;color:#741b38;font-size:12px}.bio-sheet .bio-section{color:#741b38;margin:18px 0 5px;border-bottom:1px solid #e9dce0;padding-bottom:5px}.bio-sheet.template-modern{border-top:8px solid #741b38}.bio-sheet.template-minimal{border:0;border-radius:0;padding:18px}.bio-sheet .bio-contact{margin-top:18px;padding:12px;background:#fff7e8;border-radius:8px}
+@media(max-width:480px){.bio-sheet .bio-grid{grid-template-columns:1fr}}
+@media print{body *{visibility:hidden!important}#biodataPreview,#biodataPreview *{visibility:visible!important}#biodataPreview{position:absolute!important;left:0!important;top:0!important;width:100%!important;margin:0!important;border:0!important;box-shadow:none!important;border-radius:0!important}#biodataPanel .no-print{display:none!important}@page{size:A4;margin:14mm}}
+
+</style>
+</head>
+<body>
+<header><div class="logo">♥ Humsafar <span>Sathi</span></div><div class="tagline">रिश्तों की नई शुरुआत, विश्वास के साथ</div></header>
+<section class="hero"><h1>आपका अपना हमसफ़र, आपकी अपनी कहानी</h1><p>एक खूबसूरत रिश्ते की शुरुआत कीजिए। अपनी प्रोफाइल बनाइए और अपने जीवनसाथी की तलाश की ओर पहला कदम बढ़ाइए।</p></section>
+
+<main class="container">
+<section class="card" id="authCard">
+<h2 class="section-title">ईमेल सत्यापन</h2>
+<div class="notice">पहले अपना ईमेल सत्यापित करें। OTP सत्यापन के बाद ही Registration Form खुलेगा। यह सेवा केवल 18 वर्ष या उससे अधिक उम्र के वयस्कों के लिए है।</div>
+<div id="emailStep">
+<label for="email">ईमेल पता *</label><input id="email" type="email" maxlength="254" autocomplete="email" required placeholder="अपना ईमेल पता लिखें">
+<button type="button" id="sendOtpBtn">ईमेल पर OTP भेजें</button>
+</div>
+<div id="otpStep" class="hidden">
+<label for="otp">ईमेल पर आया OTP *</label><input id="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="OTP दर्ज करें">
+<button type="button" id="verifyOtpBtn">OTP सत्यापित करें</button>
+<button type="button" class="secondary" id="changeEmailBtn">ईमेल बदलें</button>
+</div>
+<p id="authMsg" role="status" aria-live="polite"></p>
+</section>
+
+<form id="registrationForm" class="hidden">
+<div class="card">
+<h2 class="section-title">♥ व्यक्तिगत जानकारी</h2>
+<label for="name">पूरा नाम *</label><input id="name" maxlength="80" required placeholder="अपना पूरा नाम लिखें">
+<label for="dob">जन्मतिथि *</label><input id="dob" type="date" required min="1900-01-01">
+<div class="grid"><div><label for="age">उम्र *</label><input id="age" type="number" min="18" max="100" required placeholder="उम्र"></div>
+<div><label for="gender">लिंग *</label><select id="gender" required><option value="">चुनें</option><option value="Male">पुरुष</option><option value="Female">महिला</option><option value="Other">अन्य</option></select></div></div>
+<label for="mobile">मोबाइल नंबर *</label><input id="mobile" type="tel" inputmode="numeric" maxlength="10" required placeholder="10 अंकों का भारतीय नंबर"><div class="small-help">ईमेल OTP सत्यापन पूरा है। मोबाइल नंबर अभी OTP से सत्यापित नहीं होता।</div>
+<label for="country">देश</label><select id="country"><option value="India">भारत</option><option value="Nepal">नेपाल</option><option value="UAE">संयुक्त अरब अमीरात</option><option value="Saudi Arabia">सऊदी अरब</option><option value="United States">अमेरिका</option><option value="United Kingdom">ब्रिटेन</option><option value="Canada">कनाडा</option><option value="Australia">ऑस्ट्रेलिया</option><option value="Singapore">सिंगापुर</option><option value="Other">अन्य</option></select>
+<label for="state">राज्य / प्रांत</label><input id="state" maxlength="80" placeholder="अपना राज्य या प्रांत">
+<div class="grid"><div><label for="city">शहर</label><input id="city" maxlength="80" placeholder="अपना शहर"></div><div><label for="district">जिला</label><input id="district" maxlength="80" placeholder="अपना जिला"></div></div>
+<h3 class="section-title" style="margin-top:25px">अपने बारे में बताएं</h3><div class="small-help">अपने व्यक्तित्व से मिलते-जुलते एक या अधिक विकल्प चुनें।</div>
+<details class="multi-box"><summary>अपने स्वभाव और व्यक्तित्व के विकल्प चुनें ▼</summary><div class="multi-options" id="traitsOptions">
+<label><input type="checkbox" name="traits" value="सरल और सहज स्वभाव">सरल और सहज स्वभाव</label><label><input type="checkbox" name="traits" value="परिवार को महत्व देने वाला">परिवार को महत्व देने वाला</label>
+<label><input type="checkbox" name="traits" value="शिक्षित और समझदार">शिक्षित और समझदार</label><label><input type="checkbox" name="traits" value="जिम्मेदार और गंभीर">जिम्मेदार और गंभीर</label>
+<label><input type="checkbox" name="traits" value="मिलनसार और हँसमुख">मिलनसार और हँसमुख</label><label><input type="checkbox" name="traits" value="धार्मिक विचारों वाला">धार्मिक विचारों वाला</label>
+<label><input type="checkbox" name="traits" value="आधुनिक सोच वाला">आधुनिक सोच वाला</label><label><input type="checkbox" name="traits" value="परंपराओं का सम्मान करने वाला">परंपराओं का सम्मान करने वाला</label>
+<label><input type="checkbox" name="traits" value="मेहनती और आत्मनिर्भर">मेहनती और आत्मनिर्भर</label><label><input type="checkbox" name="traits" value="शांत स्वभाव का">शांत स्वभाव का</label>
+<label><input type="checkbox" name="traits" value="सकारात्मक सोच वाला">सकारात्मक सोच वाला</label><label><input type="checkbox" name="traits" value="सामाजिक गतिविधियों में रुचि">सामाजिक गतिविधियों में रुचि</label>
+<label><input type="checkbox" name="traits" value="रचनात्मक विचारों वाला">रचनात्मक विचारों वाला</label><label><input type="checkbox" name="traits" value="खुले विचारों वाला">खुले विचारों वाला</label><label><input type="checkbox" name="traits" value="अन्य">अन्य</label>
+</div></details>
+<div class="custom-option" id="traitsOtherBox" hidden><label for="traits_other">अपने व्यक्तित्व के बारे में अन्य बात लिखें</label><input id="traits_other" maxlength="150" placeholder="अपना विकल्प लिखें"></div>
+<h3 class="section-title" style="margin-top:25px">आपकी रुचियाँ और शौक</h3><div class="small-help">एक या एक से अधिक रुचियाँ चुन सकते हैं।</div>
+<details class="multi-box"><summary>अपनी रुचियाँ चुनें ▼</summary><div class="multi-options" id="interestsOptions">
+<label><input type="checkbox" name="interests" value="संगीत सुनना">संगीत सुनना</label><label><input type="checkbox" name="interests" value="घूमना-फिरना">घूमना-फिरना</label>
+<label><input type="checkbox" name="interests" value="किताबें पढ़ना">किताबें पढ़ना</label><label><input type="checkbox" name="interests" value="खेलकूद">खेलकूद</label>
+<label><input type="checkbox" name="interests" value="खाना बनाना">खाना बनाना</label><label><input type="checkbox" name="interests" value="फिल्में देखना">फिल्में देखना</label>
+<label><input type="checkbox" name="interests" value="धार्मिक गतिविधियाँ">धार्मिक गतिविधियाँ</label><label><input type="checkbox" name="interests" value="सामाजिक कार्य">सामाजिक कार्य</label>
+<label><input type="checkbox" name="interests" value="बागवानी">बागवानी</label><label><input type="checkbox" name="interests" value="फोटोग्राफी">फोटोग्राफी</label>
+<label><input type="checkbox" name="interests" value="लेखन">लेखन</label><label><input type="checkbox" name="interests" value="योग और ध्यान">योग और ध्यान</label>
+<label><input type="checkbox" name="interests" value="व्यवसाय और उद्यमिता">व्यवसाय और उद्यमिता</label><label><input type="checkbox" name="interests" value="कला और चित्रकारी">कला और चित्रकारी</label><label><input type="checkbox" name="interests" value="अन्य">अन्य</label>
+</div></details>
+<div class="custom-option" id="interestsOtherBox" hidden><label for="interests_other">अन्य रुचियाँ लिखें</label><input id="interests_other" maxlength="150" placeholder="अपनी रुचि लिखें"></div>
+<label for="bio">अपने बारे में अतिरिक्त जानकारी (वैकल्पिक)</label><textarea id="bio" maxlength="500" placeholder="अपने बारे में कुछ और बातें लिखें।"></textarea>
+<div class="small-help">व्यक्तित्व और रुचियाँ अपने अलग-अलग Database Columns में सेव होंगी।</div>
+</div>
+
+<div class="card"><h2 class="section-title">शिक्षा और करियर</h2>
+<label for="education">शैक्षणिक योग्यता</label><select id="education"><option value="">चुनें</option><option value="10th">10वीं</option><option value="12th">12वीं</option><option value="Diploma">डिप्लोमा</option><option value="ITI">ITI</option><option value="Graduation">स्नातक (Graduation)</option><option value="Post Graduation">स्नातकोत्तर (Post Graduation)</option><option value="B.Tech/Engineering">B.Tech / Engineering</option><option value="Medical">मेडिकल</option><option value="PhD">PhD</option><option value="Other">अन्य</option></select>
+<label for="occupation">पेशा / व्यवसाय</label><select id="occupation"><option value="">चुनें</option><optgroup label="सरकारी क्षेत्र"><option value="Teacher">शिक्षक</option><option value="Police/Defence">पुलिस / रक्षा सेवा</option><option value="Railway">रेलवे</option><option value="Banking">बैंकिंग</option><option value="Civil Services">सिविल सेवा</option><option value="Other Government Job">अन्य सरकारी नौकरी</option></optgroup><optgroup label="निजी क्षेत्र"><option value="IT/Software">IT / सॉफ्टवेयर</option><option value="Company/MNC">कंपनी / MNC</option><option value="Education">शिक्षा</option><option value="Healthcare">स्वास्थ्य सेवा</option><option value="Other Private Job">अन्य निजी नौकरी</option></optgroup><optgroup label="व्यवसाय और अन्य"><option value="Retail/Wholesale Business">खुदरा / थोक व्यापार</option><option value="Manufacturing Business">निर्माण व्यवसाय</option><option value="Online Business">ऑनलाइन व्यवसाय</option><option value="Agriculture">कृषि</option><option value="Self Employed">स्वरोजगार</option><option value="Professional">पेशेवर सेवा</option><option value="Student">विद्यार्थी</option><option value="Homemaker">गृह प्रबंधन</option><option value="Other">अन्य</option></optgroup></select>
+<label for="annual_income">वार्षिक आय</label><select id="annual_income"><option value="">चुनें / बताना नहीं चाहते</option><option value="Below 2 Lakh">₹2 लाख से कम</option><option value="2-5 Lakh">₹2–5 लाख</option><option value="5-10 Lakh">₹5–10 लाख</option><option value="10-15 Lakh">₹10–15 लाख</option><option value="15-25 Lakh">₹15–25 लाख</option><option value="25-50 Lakh">₹25–50 लाख</option><option value="Above 50 Lakh">₹50 लाख से अधिक</option><option value="Prefer not to say">नहीं बताना चाहते</option></select>
+<label for="marital_status">वैवाहिक स्थिति</label><select id="marital_status"><option value="">चुनें</option><option value="Never Married">अविवाहित</option><option value="Divorced">तलाकशुदा</option><option value="Widowed">विधवा / विधुर</option><option value="Other">अन्य</option></select>
+</div>
+
+<div class="card"><h2 class="section-title">धर्म और समुदाय की जानकारी</h2><div class="notice">ये सभी जानकारी वैकल्पिक हैं। आप चाहें तो इन्हें खाली छोड़ सकते हैं।</div>
+<label for="religion">धर्म</label><select id="religion"><option value="">चुनें / बताना नहीं चाहते</option><option value="Hindu">हिंदू</option><option value="Muslim">मुस्लिम</option><option value="Christian">ईसाई</option><option value="Sikh">सिख</option><option value="Buddhist">बौद्ध</option><option value="Jain">जैन</option><option value="Other">अन्य</option><option value="Prefer not to say">नहीं बताना चाहते</option></select>
+<label for="caste">जाति / समुदाय</label><input id="caste" maxlength="100" placeholder="वैकल्पिक"><label for="sub_caste">उपजाति</label><input id="sub_caste" maxlength="100" placeholder="वैकल्पिक"><label for="gotra">गोत्र</label><input id="gotra" maxlength="100" placeholder="वैकल्पिक">
+</div>
+
+<div class="card"><h2 class="section-title">परिवार की जानकारी</h2>
+<label for="father_occupation">पिता का व्यवसाय</label><select id="father_occupation"><option value="">व्यवसाय चुनें</option><option value="Agriculture">कृषि / खेती</option><option value="Government Job">सरकारी नौकरी</option><option value="Private Job">प्राइवेट नौकरी</option><option value="Business">स्वयं का व्यवसाय / व्यापार</option><option value="Shopkeeper">दुकानदार</option><option value="Teacher">शिक्षक</option><option value="Police/Defence">पुलिस / रक्षा सेवा</option><option value="Professional">पेशेवर सेवा</option><option value="Retired">सेवानिवृत्त</option><option value="Labour">मजदूरी</option><option value="Pensioner">पेंशनभोगी</option><option value="Homemaker">गृह प्रबंधन</option><option value="Deceased">स्वर्गीय</option><option value="Other">अन्य</option></select>
+<div class="custom-option" id="fatherOtherBox" hidden><label for="father_other">पिता का अन्य व्यवसाय लिखें</label><input id="father_other" maxlength="100" placeholder="व्यवसाय लिखें"></div>
+<label for="mother_occupation">माता का व्यवसाय</label><select id="mother_occupation"><option value="">व्यवसाय चुनें</option><option value="Homemaker">गृहिणी</option><option value="Government Job">सरकारी नौकरी</option><option value="Private Job">प्राइवेट नौकरी</option><option value="Teacher">शिक्षिका</option><option value="Business">व्यवसाय</option><option value="Agriculture">कृषि / खेती</option><option value="Professional">पेशेवर सेवा</option><option value="Retired">सेवानिवृत्त</option><option value="Other">अन्य</option></select>
+<div class="custom-option" id="motherOtherBox" hidden><label for="mother_other">माता का अन्य व्यवसाय लिखें</label><input id="mother_other" maxlength="100" placeholder="व्यवसाय लिखें"></div>
+<label for="siblings">भाई-बहनों की जानकारी</label><input id="siblings" maxlength="150" placeholder="भाई-बहनों की जानकारी">
+<label for="family_type">परिवार का प्रकार (वैकल्पिक)</label><select id="family_type"><option value="">चुनें</option><option value="Joint">संयुक्त परिवार</option><option value="Nuclear">एकल परिवार</option><option value="Other">अन्य</option></select>
+<label for="family_income">परिवार की वार्षिक आय (वैकल्पिक)</label><select id="family_income"><option value="">बताना नहीं चाहते</option><option value="Below 2 Lakh">₹2 लाख से कम</option><option value="2-5 Lakh">₹2–5 लाख</option><option value="5-10 Lakh">₹5–10 लाख</option><option value="10-25 Lakh">₹10–25 लाख</option><option value="25-50 Lakh">₹25–50 लाख</option><option value="Above 50 Lakh">₹50 लाख से अधिक</option></select>
+<label for="working_preference">काम करने की वर्तमान स्थिति (वैकल्पिक)</label><select id="working_preference"><option value="">चुनें</option><option value="Working">कार्यरत</option><option value="Self-employed">स्वरोजगार</option><option value="Not working">वर्तमान में कार्यरत नहीं</option><option value="Prefer not to say">नहीं बताना चाहते</option></select>
+</div>
+
+<div class="card"><h2 class="section-title">♥ जीवनसाथी के लिए आपकी पसंद</h2><div class="notice">अपनी पसंद बताइए। ये जानकारी आपकी प्रोफाइल के साथ जमा होगी। अभी इससे अपने-आप मैचिंग शुरू नहीं होगी।</div>
+<div class="grid"><div><label for="preferred_age_min">न्यूनतम उम्र</label><input id="preferred_age_min" type="number" min="18" max="100" placeholder="जैसे 25"></div><div><label for="preferred_age_max">अधिकतम उम्र</label><input id="preferred_age_max" type="number" min="18" max="100" placeholder="जैसे 32"></div></div>
+<label for="preferred_marital_status">पसंदीदा वैवाहिक स्थिति</label><select id="preferred_marital_status"><option value="">कोई विशेष पसंद नहीं</option><option value="Never Married">अविवाहित</option><option value="Divorced">तलाकशुदा</option><option value="Widowed">विधवा / विधुर</option><option value="Other">अन्य</option></select>
+<label for="preferred_education">पसंदीदा शिक्षा</label><select id="preferred_education"><option value="">कोई विशेष पसंद नहीं</option><option value="10th">10वीं</option><option value="12th">12वीं</option><option value="Diploma">डिप्लोमा</option><option value="ITI">ITI</option><option value="Graduation">स्नातक</option><option value="Post Graduation">स्नातकोत्तर</option><option value="B.Tech/Engineering">B.Tech / Engineering</option><option value="Medical">मेडिकल</option><option value="PhD">PhD</option><option value="Other">अन्य</option></select>
+<label for="preferred_religion">पसंदीदा धर्म</label><select id="preferred_religion"><option value="">कोई विशेष पसंद नहीं</option><option value="Hindu">हिंदू</option><option value="Muslim">मुस्लिम</option><option value="Christian">ईसाई</option><option value="Sikh">सिख</option><option value="Buddhist">बौद्ध</option><option value="Jain">जैन</option><option value="Other">अन्य</option></select>
+<label for="preferred_country">पसंदीदा देश</label><select id="preferred_country"><option value="">कोई विशेष पसंद नहीं</option><option value="India">भारत</option><option value="Nepal">नेपाल</option><option value="UAE">संयुक्त अरब अमीरात</option><option value="Saudi Arabia">सऊदी अरब</option><option value="United States">अमेरिका</option><option value="United Kingdom">ब्रिटेन</option><option value="Canada">कनाडा</option><option value="Australia">ऑस्ट्रेलिया</option><option value="Singapore">सिंगापुर</option><option value="Other">अन्य</option></select>
+<label for="preferred_state">पसंदीदा राज्य / प्रांत</label><input id="preferred_state" maxlength="80" placeholder="वैकल्पिक"><label for="preferred_min_income">पसंदीदा न्यूनतम वार्षिक आय (वैकल्पिक)</label><select id="preferred_min_income"><option value="">कोई विशेष पसंद नहीं</option><option value="Below 2 Lakh">₹2 लाख से कम</option><option value="2-5 Lakh">₹2–5 लाख</option><option value="5-10 Lakh">₹5–10 लाख</option><option value="10-15 Lakh">₹10–15 लाख</option><option value="15-25 Lakh">₹15–25 लाख</option><option value="25-50 Lakh">₹25–50 लाख</option><option value="Above 50 Lakh">₹50 लाख से अधिक</option></select>
+<label for="preferred_occupation">पसंदीदा पेशा (वैकल्पिक)</label><input id="preferred_occupation" maxlength="120" placeholder="जैसे सरकारी नौकरी, शिक्षक, व्यवसाय">
+<label for="preferred_working_preference">पसंदीदा कार्य स्थिति</label><select id="preferred_working_preference"><option value="">कोई विशेष पसंद नहीं</option><option value="Working">कार्यरत</option><option value="Self-employed">स्वरोजगार</option><option value="Not working">कार्यरत नहीं</option></select>
+<label for="preferred_district">पसंदीदा जिला (वैकल्पिक)</label><input id="preferred_district" maxlength="80">
+<label for="preferred_family_type">पसंदीदा परिवार का प्रकार</label><select id="preferred_family_type"><option value="">कोई विशेष पसंद नहीं</option><option value="Joint">संयुक्त परिवार</option><option value="Nuclear">एकल परिवार</option><option value="Other">अन्य</option></select>
+<label for="preferred_family_background">परिवार/पृष्ठभूमि की पसंद (वैकल्पिक)</label><input id="preferred_family_background" maxlength="150">
+<label for="preferred_caste">पसंदीदा जाति/समुदाय (वैकल्पिक)</label><input id="preferred_caste" maxlength="100">
+<label style="display:flex;gap:9px;align-items:flex-start;font-weight:500"><input id="preferred_state_mandatory" type="checkbox" style="flex-shrink:0;margin:0"><span>चुने गए राज्य को अनिवार्य रखें</span></label>
+<label style="display:flex;gap:9px;align-items:flex-start;font-weight:500"><input id="preferred_caste_mandatory" type="checkbox" style="flex-shrink:0;margin:0"><span>चुने गए समुदाय को अनिवार्य रखें</span></label>
+<label for="partner_expectations">जीवनसाथी से आपकी अपेक्षाएँ</label><textarea id="partner_expectations" maxlength="1000" placeholder="अपनी अपेक्षाएँ लिखें"></textarea>
+</div>
+
+<div class="card"><h2 class="section-title">प्रोफाइल फोटो और सहमति</h2>
+<label for="profile_photo">प्रोफाइल फोटो (JPG, PNG या WebP)</label><input id="profile_photo" type="file" accept="image/jpeg,image/png,image/webp">
+<div class="small-help">फोटो निजी Storage में आपके अपने अकाउंट के फोल्डर में अपलोड होगी। अधिकतम आकार 3 MB। फोटो वैकल्पिक है।</div>
+<div class="notice">आपकी प्रोफाइल पहले Admin Approval के लिए जाएगी। आपकी फोटो सार्वजनिक लिंक के रूप में सेव नहीं होगी।</div>
+<div class="notice">यह सेवा केवल 18 वर्ष या उससे अधिक उम्र के वयस्कों के लिए है। अपनी जानकारी जमा करने से पहले सुनिश्चित करें कि आप इसे साझा करने के लिए सहमत हैं।</div>
+<label style="display:flex;gap:10px;align-items:flex-start;font-weight:500"><input id="consent" type="checkbox" required style="flex-shrink:0;margin:0"><span>मैं पुष्टि करता/करती हूँ कि मेरी उम्र 18 वर्ष या उससे अधिक है और दी गई जानकारी सही है। मैं इसे जमा करने के लिए सहमति देता/देती हूँ।</span></label>
+<label style="display:flex;gap:10px;align-items:flex-start;font-weight:500;margin-top:14px"><input id="matchingConsent" type="checkbox" required style="flex-shrink:0;margin:0"><span>मैं अपनी प्रोफाइल का उपयोग केवल Humsafar Sathi के आंतरिक Automatic Matching के लिए करने की अलग सहमति देता/देती हूँ। मेरी प्रोफाइल या Matching Score अन्य सदस्यों को सार्वजनिक रूप से नहीं दिखाया जाएगा।</span></label>
+<button type="submit" id="registerBtn">♥ रजिस्ट्रेशन करें</button><button type="button" class="secondary" id="signOutBtn">लॉगआउट</button><p id="msg" role="status" aria-live="polite"></p>
+</div>
+</form>
+
+<section class="card hidden" id="biodataPanel">
+  <h2 class="section-title">अपना Biodata PDF बनाएँ</h2>
+  <p class="small-help">यह सुविधा केवल Admin-approved प्रोफाइल के लिए है। PDF में केवल आपकी अपनी चुनी हुई जानकारी शामिल होगी। संपर्क और फोटो डिफ़ॉल्ट रूप से छिपे रहेंगे।</p>
+  <div class="grid no-print">
+    <div><label for="biodataLanguage">भाषा / Language</label><select id="biodataLanguage"><option value="hi">हिंदी</option><option value="en">English</option></select></div>
+    <div><label for="biodataTemplate">डिज़ाइन / Template</label><select id="biodataTemplate"><option value="classic">Classic</option><option value="modern">Modern</option><option value="minimal">Minimal</option></select></div>
+  </div>
+  <label class="no-print" style="display:flex;gap:9px;align-items:flex-start;font-weight:500"><input id="biodataIncludePhoto" type="checkbox" style="flex-shrink:0;margin:0"><span>मैं इस PDF में अपनी प्रोफाइल फोटो शामिल करने की अनुमति देता/देती हूँ।</span></label>
+  <label class="no-print" style="display:flex;gap:9px;align-items:flex-start;font-weight:500"><input id="biodataIncludeContact" type="checkbox" style="flex-shrink:0;margin:0"><span>मैं इस PDF में अपना मोबाइल और ईमेल शामिल करने की अनुमति देता/देती हूँ।</span></label>
+  <div class="row no-print"><button type="button" id="biodataPreviewBtn">Preview बनाएँ</button><button type="button" class="secondary" id="biodataPrintBtn" disabled>PDF सेव / प्रिंट</button></div>
+  <p id="biodataMsg" role="status" aria-live="polite"></p>
+  <div id="biodataPreview" class="bio-sheet template-classic hidden"></div>
+</section>
+</main>
+
+<section class="container" id="contact-us">
+  <div class="card">
+    <h2 class="section-title">Contact Us — हमसे संपर्क करें</h2>
+    <p class="small-help">Registration या वेबसाइट से जुड़ी सहायता के लिए संदेश भेजें। कृपया OTP, पासवर्ड या कोई संवेदनशील पहचान दस्तावेज़ यहाँ न लिखें।</p>
+    <form id="contactForm" novalidate>
+      <label for="contactName">पूरा नाम *</label>
+      <input id="contactName" name="name" maxlength="80" autocomplete="name" required>
+      <label for="contactEmail">ईमेल *</label>
+      <input id="contactEmail" name="email" type="email" maxlength="254" autocomplete="email" required>
+      <label for="contactMobile">मोबाइल (वैकल्पिक)</label>
+      <input id="contactMobile" name="mobile" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel">
+      <label for="contactCategory">संपर्क का कारण *</label>
+      <select id="contactCategory" name="category" required>
+        <option value="">कारण चुनें</option>
+        <option>Registration issue</option><option>Login/OTP issue</option>
+        <option>Profile help</option><option>Photo/document upload issue</option>
+        <option>Complaint</option><option>Suggestion</option><option>Other</option>
+      </select>
+      <label for="contactMessage">आपका संदेश *</label>
+      <textarea id="contactMessage" name="message" maxlength="3000" minlength="10" required placeholder="अपनी समस्या या सुझाव लिखें"></textarea>
+      <div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden">
+        <label for="contactWebsite">इस फ़ील्ड को खाली छोड़ें</label>
+        <input id="contactWebsite" name="website" tabindex="-1" autocomplete="off">
+      </div>
+      <button type="submit" id="contactSubmit">संदेश भेजें</button>
+      <p id="contactStatus" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+
+<footer><strong>♥ Humsafar Sathi</strong><br>आपका विश्वास, हमारी प्राथमिकता।<br><a href="#contact-us" style="color:#f6e5df;text-decoration:underline">Contact Us</a><br>© 2026 Humsafar Sathi. All Rights Reserved.</footer>
+
+<script>
+"use strict";
+const SUPABASE_URL="https://hozvxspxnzdcbcanhxom.supabase.co";
+const SUPABASE_KEY="sb_publishable_J5Tug3LtJNWlmGPlGFtsHA_9IsN5OIO";
+const PHOTO_BUCKET="profile-photos";
+const MAX_PHOTO_BYTES=3*1024*1024;
+const client=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+const authCard=$("authCard"),emailStep=$("emailStep"),otpStep=$("otpStep"),authMsg=$("authMsg"),form=$("registrationForm"),msg=$("msg"),btn=$("registerBtn");
+let verifiedEmail=null;
+
+function say(el,text,color="#b42335"){el.textContent=text;el.style.color=color}
+function value(id){return $(id).value.trim()}
+function selected(name){return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(x=>x.value)}
+function setOther(name,boxId,inputId,trigger="अन्य"){
+  const update=()=>{const show=selected(name).includes(trigger);$(boxId).hidden=!show;if(!show)$(inputId).value=""};
+  document.querySelectorAll(`input[name="${name}"]`).forEach(x=>x.addEventListener("change",update));update();
+}
+setOther("traits","traitsOtherBox","traits_other");
+setOther("interests","interestsOtherBox","interests_other");
+function selectOther(selectId,boxId,inputId){
+  const update=()=>{const show=$(selectId).value==="Other";$(boxId).hidden=!show;if(!show)$(inputId).value=""};
+  $(selectId).addEventListener("change",update);update();
+}
+selectOther("father_occupation","fatherOtherBox","father_other");
+selectOther("mother_occupation","motherOtherBox","mother_other");
+
+function showVerified(email){
+  verifiedEmail=email;
+  authCard.classList.add("hidden");
+  form.classList.remove("hidden");
+  say(msg,"सत्यापित ईमेल: "+email+" — अब अपनी प्रोफाइल भरें।","#16834b");
+}
+async function checkExistingRegistration(){
+  const {data,error}=await client.functions.invoke("submit-registration",{body:{action:"check_existing"}});
+  if(error)throw error;
+  if(!data||data.success!==true)throw new Error(data?.error||"प्रोफाइल स्थिति प्राप्त नहीं हुई।");
+  return data;
+}
+function showExistingRegistration(status){
+  const labels={pending:"आपकी प्रोफाइल Admin Approval की प्रतीक्षा में है।",approved:"आपकी प्रोफाइल स्वीकृत है। अब आप अपना Biodata PDF बना सकते हैं।",rejected:"आपकी प्रोफाइल अस्वीकृत की गई है। सहायता के लिए Contact Us करें।",suspended:"आपकी प्रोफाइल फिलहाल निलंबित है। सहायता के लिए Contact Us करें।"};
+  say(authMsg,labels[status]||"इस ईमेल से प्रोफाइल पहले से जमा है। नया Registration नहीं बनाया जा सकता।","#16834b");
+  emailStep.classList.add("hidden");otpStep.classList.add("hidden");
+  if(status==="approved")$("biodataPanel").classList.remove("hidden");
+}
+async function checkExistingSession(){
+  if(!client)return;
+  const {data,error}=await client.auth.getSession();
+  if(error){say(authMsg,"लॉगिन स्थिति प्राप्त नहीं हुई। पेज रीफ्रेश करें।");return}
+  const user=data.session?.user;
+  if(user?.email){
+    if(!user.email_confirmed_at){await client.auth.signOut();say(authMsg,"ईमेल की पुष्टि पूरी नहीं हुई। कृपया OTP से दोबारा सत्यापन करें।");return}
+    const existing=await checkExistingRegistration();
+    if(existing.exists){showExistingRegistration(existing.profile_status);return}
+    showVerified(user.email);
+  }
+}
+$("sendOtpBtn").addEventListener("click",async()=>{
+  if(!client){say(authMsg,"Supabase कनेक्शन उपलब्ध नहीं है।");return}
+  const email=value("email").toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){say(authMsg,"कृपया सही ईमेल पता दर्ज करें।");return}
+  const b=$("sendOtpBtn");b.disabled=true;b.textContent="OTP भेजा जा रहा है...";
+  try{
+    const {error}=await client.auth.signInWithOtp({email,options:{shouldCreateUser:true}});
+    if(error)throw error;
+    emailStep.classList.add("hidden");otpStep.classList.remove("hidden");
+    say(authMsg,"OTP आपके ईमेल पर भेज दिया गया है। Inbox और Spam फ़ोल्डर देखें।","#16834b");
+  }catch(e){console.error(e);say(authMsg,"OTP नहीं भेजा जा सका: "+(e.message||"कृपया थोड़ी देर बाद प्रयास करें।"))}
+  finally{b.disabled=false;b.textContent="ईमेल पर OTP भेजें"}
+});
+$("verifyOtpBtn").addEventListener("click",async()=>{
+  if(!client)return;
+  const email=value("email").toLowerCase(),token=value("otp").replace(/\s/g,"");
+  if(!/^\d{6,8}$/.test(token)){say(authMsg,"ईमेल में आया सही OTP दर्ज करें।");return}
+  const b=$("verifyOtpBtn");b.disabled=true;b.textContent="सत्यापन हो रहा है...";
+  try{
+    const {data,error}=await client.auth.verifyOtp({email,token,type:"email"});
+    if(error)throw error;
+    if(!data.user?.id||!data.session||!data.user.email_confirmed_at)throw new Error("सत्यापन सत्र या ईमेल पुष्टि प्राप्त नहीं हुई।");
+    const existing=await checkExistingRegistration();
+    if(existing.exists){showExistingRegistration(existing.profile_status);return}
+    showVerified(data.user.email||email);
+  }catch(e){console.error(e);say(authMsg,"OTP सत्यापन असफल: "+(e.message||"OTP जाँचें और फिर प्रयास करें।"))}
+  finally{b.disabled=false;b.textContent="OTP सत्यापित करें"}
+});
+$("changeEmailBtn").addEventListener("click",async()=>{
+  const b=$("changeEmailBtn");b.disabled=true;
+  try{
+    // Prevent a previously authenticated account from being reused with a different email.
+    const {error}=await client.auth.signOut();
+    if(error)throw error;
+    verifiedEmail=null;
+    otpStep.classList.add("hidden");emailStep.classList.remove("hidden");
+    $("otp").value="";say(authMsg,"पुराना लॉगिन बंद कर दिया गया है। अब नया ईमेल सत्यापित करें।","#16834b");
+  }catch(e){say(authMsg,"ईमेल बदलने से पहले लॉगआउट नहीं हो पाया। पेज रीफ्रेश करके प्रयास करें।")}
+  finally{b.disabled=false}
+});
+
+function getOptionalNumber(id){
+  const raw=value(id);if(!raw)return null;
+  const n=Number(raw);return Number.isInteger(n)?n:NaN;
+}
+async function uploadPhoto(userId,file){
+  if(!file)return null;
+  const allowed=["image/jpeg","image/png","image/webp"];
+  if(!allowed.includes(file.type))throw new Error("फोटो केवल JPG, PNG या WebP फ़ॉर्मेट में होनी चाहिए।");
+  if(file.size>MAX_PHOTO_BYTES)throw new Error("फोटो का आकार 3 MB से कम होना चाहिए।");
+  const ext=({ "image/jpeg":"jpg","image/png":"png","image/webp":"webp"})[file.type];
+  const path=`${userId}/${crypto.randomUUID()}.${ext}`;
+  const {error}=await client.storage.from(PHOTO_BUCKET).upload(path,file,{contentType:file.type,upsert:false});
+  if(error)throw error;
+  return path;
+}
+form.addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(!client){say(msg,"Supabase कनेक्शन उपलब्ध नहीं है।");return}
+  const {data:sessionData,error:sessionError}=await client.auth.getSession();
+  if(sessionError||!sessionData.session?.user?.id){say(msg,"आपका लॉगिन सत्र समाप्त हो गया है। कृपया दोबारा ईमेल OTP सत्यापित करें।");return}
+  const user=sessionData.session.user;
+  if(verifiedEmail&&user.email?.toLowerCase()!==verifiedEmail.toLowerCase()){say(msg,"लॉगिन ईमेल बदल गया है। कृपया दोबारा सत्यापन करें।");return}
+  const age=Number(value("age")),mobile=value("mobile"),dob=value("dob");
+  if(!dob){say(msg,"कृपया अपनी जन्मतिथि दर्ज करें।");return}
+  const [birthYear,birthMonth,birthDay]=dob.split("-").map(Number);
+  const birthUtc=Date.UTC(birthYear,birthMonth-1,birthDay);
+  const birthCheck=new Date(birthUtc);
+  const indiaParts=new Intl.DateTimeFormat("en-US",{timeZone:"Asia/Kolkata",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
+  const indiaPart=type=>Number(indiaParts.find(part=>part.type===type)?.value);
+  const todayYear=indiaPart("year"),todayMonth=indiaPart("month"),todayDay=indiaPart("day");
+  const todayUtc=Date.UTC(todayYear,todayMonth-1,todayDay);
+  let calculatedAge=todayYear-birthYear;
+  if(todayMonth<birthMonth||(todayMonth===birthMonth&&todayDay<birthDay))calculatedAge--;
+  if(birthCheck.getUTCFullYear()!==birthYear||birthCheck.getUTCMonth()!==birthMonth-1||birthCheck.getUTCDate()!==birthDay||birthUtc>todayUtc||calculatedAge<18||calculatedAge>100){say(msg,"कृपया सही जन्मतिथि दर्ज करें। यह सेवा केवल 18 वर्ष या उससे अधिक उम्र के वयस्कों के लिए है।");return}
+  if(calculatedAge!==age){say(msg,"उम्र और जन्मतिथि मेल नहीं खाते। कृपया दोनों सही करें।");return}
+  const minAge=getOptionalNumber("preferred_age_min"),maxAge=getOptionalNumber("preferred_age_max");
+  if(!Number.isInteger(age)||age<18||age>100){say(msg,"यह सेवा केवल 18 वर्ष या उससे अधिक उम्र के वयस्कों के लिए है।");return}
+  if(!/^[6-9]\d{9}$/.test(mobile)){say(msg,"कृपया सही 10 अंकों का भारतीय मोबाइल नंबर डालें।");return}
+  if(!$("consent").checked){say(msg,"कृपया सहमति वाले बॉक्स पर टिक करें।");return}
+  if(!$("matchingConsent").checked){say(msg,"Automatic Matching के लिए अलग सहमति आवश्यक है।");return}
+  if($("preferred_state_mandatory").checked&&!value("preferred_state")){say(msg,"राज्य को अनिवार्य रखने से पहले पसंदीदा राज्य चुनें।");return}
+  if($("preferred_caste_mandatory").checked&&!value("preferred_caste")){say(msg,"समुदाय को अनिवार्य रखने से पहले पसंदीदा समुदाय लिखें।");return}
+  if(Number.isNaN(minAge)||Number.isNaN(maxAge)|| (minAge!==null&&(minAge<18||minAge>100)) || (maxAge!==null&&(maxAge<18||maxAge>100)) || (minAge!==null&&maxAge!==null&&minAge>maxAge)){say(msg,"पसंदीदा उम्र 18 से 100 के बीच रखें और न्यूनतम उम्र अधिकतम से अधिक न हो।");return}
+  if(value("father_occupation")==="Other"&&!value("father_other")){say(msg,"कृपया पिता का अन्य व्यवसाय लिखें।");return}
+  if(value("mother_occupation")==="Other"&&!value("mother_other")){say(msg,"कृपया माता का अन्य व्यवसाय लिखें।");return}
+  const file=$("profile_photo").files[0]||null;
+  btn.disabled=true;btn.textContent="रजिस्ट्रेशन जमा हो रहा है...";say(msg,"कृपया प्रतीक्षा करें...","#71552e");
+  let uploadedPath=null;
+  try{
+    if(file)uploadedPath=await uploadPhoto(user.id,file);
+    const traits=selected("traits"),interests=selected("interests");
+    const registration={
+      name:value("name"),age,gender:value("gender"),mobile,
+      city:value("city")||null,district:value("district")||null,
+      education:value("education")||null,occupation:value("occupation")||null,
+      annual_income:value("annual_income")||null,marital_status:value("marital_status")||null,
+      father_occupation:value("father_occupation")==="Other"?value("father_other"):value("father_occupation")||null,
+      mother_occupation:value("mother_occupation")==="Other"?value("mother_other"):value("mother_occupation")||null,
+      siblings:value("siblings")||null,state:value("state")||null,country:value("country")||"India",
+      religion:value("religion")||null,caste:value("caste")||null,sub_caste:value("sub_caste")||null,gotra:value("gotra")||null,
+      preferred_age_min:minAge,preferred_age_max:maxAge,
+      preferred_marital_status:value("preferred_marital_status")||null,
+      preferred_education:value("preferred_education")||null,preferred_religion:value("preferred_religion")||null,
+      preferred_country:value("preferred_country")||null,preferred_state:value("preferred_state")||null,
+      family_type:value("family_type")||null,family_income:value("family_income")||null,
+      working_preference:value("working_preference")||null,
+      preferred_min_income:value("preferred_min_income")||null,
+      preferred_occupation:value("preferred_occupation")||null,
+      preferred_working_preference:value("preferred_working_preference")||null,
+      preferred_district:value("preferred_district")||null,
+      preferred_family_type:value("preferred_family_type")||null,
+      preferred_family_background:value("preferred_family_background")||null,
+      preferred_caste:value("preferred_caste")||null,
+      preferred_state_mandatory:$("preferred_state_mandatory").checked,
+      preferred_caste_mandatory:$("preferred_caste_mandatory").checked,
+      matching_consent:$("matchingConsent").checked,
+      partner_expectations:value("partner_expectations")||null,
+      consent:true,
+      personality_traits:traits,personality_other:traits.includes("अन्य")?(value("traits_other")||null):null,
+      interests:interests,interests_other:interests.includes("अन्य")?(value("interests_other")||null):null,
+      bio_extra:value("bio")||null,
+      ...(uploadedPath?{profile_photo:uploadedPath,profile_photo_path:uploadedPath}:{profile_photo:null,profile_photo_path:null})
+    };
+    // DOB is sent only for server-side adult-age validation and is never stored.
+    const {data:savedRegistration,error}=await client.functions.invoke("submit-registration",{
+      body:{registration,dob}
+    });
+    if(error)throw error;
+    if(savedRegistration?.success!==true){
+      throw new Error(savedRegistration?.error||"Registration स्वीकार नहीं हुआ।");
+    }
+    const emailNoticeSent=savedRegistration.notification_sent===true;
+    say(msg,emailNoticeSent?"♥ आपका Registration सफलतापूर्वक जमा हो गया है। आपकी प्रोफाइल Admin Approval के लिए भेज दी गई है।":"♥ आपका Registration सफलतापूर्वक जमा हो गया है। Admin को ईमेल सूचना भेजने में देरी हुई है; आपकी प्रोफाइल सुरक्षित है।","#16834b");
+    form.reset();
+    document.querySelectorAll(".custom-option").forEach(x=>x.hidden=true);
+    $("profile_photo").value="";
+    btn.classList.add("hidden");
+    $("signOutBtn").classList.remove("hidden");
+  }catch(err){
+    console.error("Registration error:",err);
+    if(uploadedPath){try{await client.storage.from(PHOTO_BUCKET).remove([uploadedPath])}catch(cleanupError){console.error("Photo cleanup:",cleanupError)}}
+    const text=err?.message||"कृपया बाद में प्रयास करें।";
+    if(err?.code==="23505")say(msg,"इस ईमेल से प्रोफाइल पहले से मौजूद है।");
+    else if(err?.code==="42501")say(msg,"Database अनुमति या फोटो Storage Policy में बदलाव आवश्यक है। नीचे दिए गए निर्देश देखें।");
+    else say(msg,"Registration पूरा नहीं हो पाया: "+text);
+  }finally{btn.disabled=false;if(!btn.classList.contains("hidden"))btn.textContent="♥ रजिस्ट्रेशन करें"}
+});
+$("signOutBtn").addEventListener("click",async()=>{
+  if(!client)return;
+  const {error}=await client.auth.signOut();
+  if(error){say(msg,"लॉगआउट नहीं हो पाया: "+error.message);return}
+  location.reload();
+});
+if(!client){say(authMsg,"Supabase JS लोड नहीं हुआ। इंटरनेट कनेक्शन जाँचें।")}
+else{checkExistingSession()}
+
+const biodataLabels={
+  hi:{title:"विवाह परिचय",subtitle:"Humsafar Sathi — व्यक्तिगत परिचय",name:"नाम",age:"उम्र",gender:"लिंग",location:"स्थान",education:"शिक्षा",occupation:"पेशा",income:"व्यक्तिगत वार्षिक आय",marital:"वैवाहिक स्थिति",community:"धर्म / समुदाय",family:"परिवार",familyIncome:"पारिवारिक आय",working:"कार्य स्थिति",traits:"व्यक्तित्व",interests:"रुचियाँ",about:"अपने बारे में",expectations:"जीवनसाथी से अपेक्षाएँ",contact:"संपर्क विवरण",mobile:"मोबाइल",email:"ईमेल"},
+  en:{title:"Matrimonial Biodata",subtitle:"Humsafar Sathi — Personal Profile",name:"Name",age:"Age",gender:"Gender",location:"Location",education:"Education",occupation:"Occupation",income:"Annual Personal Income",marital:"Marital Status",community:"Religion / Community",family:"Family",familyIncome:"Family Income",working:"Work Preference",traits:"Personality",interests:"Interests",about:"About Me",expectations:"Partner Expectations",contact:"Contact Details",mobile:"Mobile",email:"Email"}
+};
+function bioField(label,value){return value?`<div class="bio-field"><b>${esc(label)}</b>${esc(Array.isArray(value)?value.join(", "):value)}</div>`:""}
+$("biodataPreviewBtn").addEventListener("click",async()=>{
+  const button=$("biodataPreviewBtn");button.disabled=true;say($("biodataMsg"),"आपकी स्वीकृत प्रोफाइल से सुरक्षित Biodata तैयार हो रहा है...","#71552e");
+  try{
+    const language=$("biodataLanguage").value,template=$("biodataTemplate").value;
+    const {data,error}=await client.functions.invoke("biodata-export",{body:{language,template_key:template,include_photo:$("biodataIncludePhoto").checked,include_contact:$("biodataIncludeContact").checked}});
+    if(error)throw error;if(!data||data.ok!==true)throw new Error(data?.error||"Biodata नहीं बन पाया।");
+    const p=data.profile||{},l=biodataLabels[language],loc=[p.city,p.district,p.state,p.country].filter(Boolean).join(", ");
+    const fam=language==="hi"?[p.father_occupation?`पिता: ${p.father_occupation}`:"",p.mother_occupation?`माता: ${p.mother_occupation}`:"",p.siblings?`भाई-बहन: ${p.siblings}`:""].filter(Boolean).join(" · "):[p.father_occupation?`Father: ${p.father_occupation}`:"",p.mother_occupation?`Mother: ${p.mother_occupation}`:"",p.siblings?`Siblings: ${p.siblings}`:""].filter(Boolean).join(" · ");
+    const community=[p.religion,p.caste,p.sub_caste,p.gotra].filter(Boolean).join(" / ");
+    const traits=[...(Array.isArray(p.personality_traits)?p.personality_traits:[]),p.personality_other].filter(Boolean).join(", ");
+    const interests=[...(Array.isArray(p.interests)?p.interests:[]),p.interests_other].filter(Boolean).join(", ");
+    let photo="";
+    if(data.photo_url){try{const u=new URL(data.photo_url);if(u.protocol==="https:"&&u.origin===new URL(SUPABASE_URL).origin&&u.pathname.includes("/storage/v1/object/sign/profile-photos/"))photo=`<img class="bio-photo" src="${esc(u.href)}" alt="Profile photo">`}catch{photo=""}}
+    const fields=[bioField(l.name,p.name),bioField(l.age,p.age),bioField(l.gender,p.gender),bioField(l.location,loc),bioField(l.education,p.education),bioField(l.occupation,p.occupation),bioField(l.income,p.annual_income),bioField(l.marital,p.marital_status),bioField(l.community,community),bioField(l.family,fam),bioField(l.familyIncome,p.family_income),bioField(l.working,p.working_preference),bioField(l.traits,traits),bioField(l.interests,interests)].join("");
+    const contact=data.included_contact?`<h3 class="bio-section">${esc(l.contact)}</h3><div class="bio-contact">${bioField(l.mobile,p.mobile)}${bioField(l.email,p.email)}</div>`:"";
+    const about=`${bioField(l.about,p.bio)}${bioField(l.expectations,p.partner_expectations)}`;
+    $("biodataPreview").className=`bio-sheet template-${template}`;
+    $("biodataPreview").innerHTML=`${photo}<h2>${esc(l.title)}</h2><p class="bio-sub">${esc(l.subtitle)}</p><div class="bio-grid">${fields}</div>${about?`<h3 class="bio-section">${esc(l.about)}</h3>${about}`:""}${contact}<p class="bio-sub" style="margin-top:24px">Humsafar Sathi</p>`;
+    $("biodataPreview").classList.remove("hidden");$("biodataPrintBtn").disabled=false;
+    say($("biodataMsg"),"Preview तैयार है। PDF सेव करने के लिए Print चुनें और प्रिंटर सूची में ‘Save as PDF’ चुनें।","#16834b");
+  }catch(error){say($("biodataMsg"),"Biodata तैयार नहीं हुआ: "+(error?.message||"त्रुटि"))}
+  finally{button.disabled=false}
+});
+$("biodataPrintBtn").addEventListener("click",()=>{if(!$("biodataPreview").classList.contains("hidden"))window.print()});
+
+const contactForm=$("contactForm");
+if(contactForm){
+  contactForm.addEventListener("submit",async e=>{
+    e.preventDefault();
+    const status=$("contactStatus"),button=$("contactSubmit");
+    const setStatus=(t,ok=false)=>{status.textContent=t;status.style.color=ok?"#16834b":"#b42335"};
+    const name=$("contactName").value.trim(),email=$("contactEmail").value.trim().toLowerCase();
+    const mobile=$("contactMobile").value.trim(),category=$("contactCategory").value;
+    const message=$("contactMessage").value.trim(),website=$("contactWebsite").value;
+    if(!name||name.length>80||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||
+       (mobile&&!/^[6-9]\d{9}$/.test(mobile))||!category||message.length<10||message.length>3000){
+      setStatus("कृपया सभी आवश्यक जानकारी सही भरें। मोबाइल नंबर वैकल्पिक है।");return;
+    }
+    button.disabled=true;button.textContent="संदेश भेजा जा रहा है...";
+    try{
+      const {data,error}=await client.functions.invoke("send-contact-message",{
+        body:{name,email,mobile:mobile||null,category,message,website}
+      });
+      if(error)throw error;
+      if(data?.success!==true)throw new Error("संदेश स्वीकार नहीं हुआ।");
+      contactForm.reset();
+      const reference=data.reference?" Reference: "+data.reference:"";
+      if(data.notification_sent===true){
+        setStatus("धन्यवाद! आपका संदेश प्राप्त हो गया है। Admin को ईमेल सूचना भेजने का अनुरोध स्वीकार हुआ है।"+reference,true);
+      }else{
+        setStatus("आपका संदेश प्राप्त हो गया है। Admin को ईमेल सूचना भेजने में अभी समस्या हुई है।"+reference,true);
+      }
+    }catch(err){
+      console.error("Contact form error:",err);
+      setStatus("संदेश अभी नहीं भेजा जा सका। कृपया कुछ समय बाद दोबारा प्रयास करें।");
+    }finally{button.disabled=false;button.textContent="संदेश भेजें"}
+  });
+}
+
+</script>
+</body>
+</html>
